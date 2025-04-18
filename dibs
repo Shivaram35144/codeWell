@@ -1,0 +1,58 @@
+import pandas as pd
+import os
+from itertools import product
+
+# Load the master Excel file
+master_file = 'master.xlsx'  # <- change this to your master file path
+
+# Read all sheets into a dictionary
+sheets = {
+    'General_Criteria': pd.read_excel(master_file, sheet_name='General_Criteria'),
+    'Customer_Criteria': pd.read_excel(master_file, sheet_name='Customer_Criteria'),
+    'Account_Criteria': pd.read_excel(master_file, sheet_name='Account_Criteria'),
+    'Relationship_Criteria': pd.read_excel(master_file, sheet_name='Relationship_Criteria'),
+    'Addition Input': pd.read_excel(master_file, sheet_name='Addition Input'),
+    'Pending_Reservation_Queue': pd.read_excel(master_file, sheet_name='Pending_Reservation_Queue')
+}
+
+# Output folder
+output_folder = 'output_excels'
+os.makedirs(output_folder, exist_ok=True)
+
+# Iterate over each row in General_Criteria
+for idx, row in sheets['General_Criteria'].iterrows():
+    bs_value = row['bs']
+
+    # Collect matching rows from each sheet (except General_Criteria)
+    matches = {}
+    for sheet_name in ['Customer_Criteria', 'Account_Criteria', 'Relationship_Criteria', 'Addition Input', 'Pending_Reservation_Queue']:
+        df = sheets[sheet_name]
+        matched_rows = df[df['SearchRecord'] == bs_value]
+        
+        if matched_rows.empty:
+            # If no match found in any sheet, skip this bs_value
+            break
+        matches[sheet_name] = matched_rows
+
+    else:  # Only if all sheets had matches
+        # Now we have a dictionary 'matches' with DataFrames of matching rows
+        
+        # Create all combinations (cartesian product) of rows across sheets
+        # This handles cases where multiple matches exist
+        list_of_rows = [matches[sheet].to_dict('records') for sheet in matches]
+        combinations = list(product(*list_of_rows))
+
+        for combo_idx, combo in enumerate(combinations, start=1):
+            # Create a new Excel writer
+            output_path = os.path.join(output_folder, f"{bs_value}_{combo_idx}.xlsx")
+            with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+                
+                # General_Criteria: only the current row
+                sheets['General_Criteria'].iloc[[idx]].to_excel(writer, sheet_name='General_Criteria', index=False)
+
+                # Other sheets: corresponding rows from the current combination
+                for sheet_name, row_data in zip(['Customer_Criteria', 'Account_Criteria', 'Relationship_Criteria', 'Addition Input', 'Pending_Reservation_Queue'], combo):
+                    df_row = pd.DataFrame([row_data])
+                    df_row.to_excel(writer, sheet_name=sheet_name, index=False)
+
+print("✅ Done! All test Excel files are created.")
