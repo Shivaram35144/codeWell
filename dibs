@@ -4,22 +4,22 @@ import shutil
 from itertools import product
 
 # Master Excel file path
-master_file = 'master.xlsx'  # <- Change if needed
+master_file = 'master.xlsx'  # <-- Change to your input file name
 
 # Output folder
 output_folder = 'output_excels'
-# Clean and create fresh output folder
+# Clean and recreate output folder
 if os.path.exists(output_folder):
     shutil.rmtree(output_folder)
 os.makedirs(output_folder, exist_ok=True)
 
-# Read all sheets into memory
+# Read all sheets
 sheets = {
     'General_Criteria': pd.read_excel(master_file, sheet_name='General_Criteria'),
     'Customer_Criteria': pd.read_excel(master_file, sheet_name='Customer_Criteria'),
     'Account_Criteria': pd.read_excel(master_file, sheet_name='Account_Criteria'),
     'Relationship_Criteria': pd.read_excel(master_file, sheet_name='Relationship_Criteria'),
-    'Addition Input': pd.read_excel(master_file, sheet_name='Addition Input'),
+    'Additional Input': pd.read_excel(master_file, sheet_name='Additional Input'),
     'Pending_Reservation_Queue': pd.read_excel(master_file, sheet_name='Pending_Reservation_Queue')
 }
 
@@ -29,7 +29,7 @@ for idx, row in sheets['General_Criteria'].iterrows():
 
     # Prepare matching rows from other sheets
     matches = {}
-    for sheet_name in ['Customer_Criteria', 'Account_Criteria', 'Relationship_Criteria', 'Addition Input', 'Pending_Reservation_Queue']:
+    for sheet_name in ['Customer_Criteria', 'Account_Criteria', 'Relationship_Criteria', 'Additional Input', 'Pending_Reservation_Queue']:
         df = sheets[sheet_name]
         matched_rows = df[df['SearchRecord'] == bs_value]
 
@@ -50,30 +50,36 @@ for idx, row in sheets['General_Criteria'].iterrows():
                 # Prepare General_Criteria sheet
                 gen_row = row.copy()
 
-                # Build the required output row
+                # Build required columns
                 general_output = pd.DataFrame([{
                     'bs': gen_row['bs'],
                     'Environment': gen_row['Environment'],
                     'Reserved Status': gen_row['ReservedStatus'],
                     'Find Results By': gen_row['FindResultsBy'],
                     'Search Structure By': gen_row['SearchStructureOnly'],
-                    'Search By Number of Customers/ Accounts Only': '',
-                    'Search_Criteria': f"SearchRecord: {gen_row['bs']} , SearchBy: {gen_row['SearchBy']}"
+                    'Search By Number of Customers/ Accounts Only': ''
                 }])
 
                 # Write General_Criteria
                 general_output.to_excel(writer, sheet_name='General_Criteria', index=False)
 
+                # Write Search_Criteria sheet
+                search_criteria_output = pd.DataFrame([{
+                    'SearchRecord': gen_row['bs'],
+                    'SearchBy': gen_row['SearchBy']
+                }])
+                search_criteria_output.to_excel(writer, sheet_name='Search_Criteria', index=False)
+
                 # Write other sheets
                 for sheet_name, row_data in zip(
-                    ['Customer_Criteria', 'Account_Criteria', 'Relationship_Criteria', 'Addition Input', 'Pending_Reservation_Queue'], 
+                    ['Customer_Criteria', 'Account_Criteria', 'Relationship_Criteria', 'Additional Input', 'Pending_Reservation_Queue'], 
                     combo
                 ):
                     df_row = pd.DataFrame([row_data])
-                    
-                    # Rename Addition Input to Additional_Input
-                    output_sheet_name = 'Additional_Input' if sheet_name == 'Addition Input' else sheet_name
+
+                    # Rename Additional Input to Additional_Input in output
+                    output_sheet_name = 'Additional_Input' if sheet_name == 'Additional Input' else sheet_name
                     
                     df_row.to_excel(writer, sheet_name=output_sheet_name, index=False)
 
-print("✅ Done! All Excel files created cleanly in the new folder.")
+print("✅ Done! All Excel files created correctly with final sheet names and structure.")
