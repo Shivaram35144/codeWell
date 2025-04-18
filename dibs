@@ -4,7 +4,7 @@ import shutil
 from itertools import product
 
 # Master Excel file path
-master_file = 'master.xlsx'  # <-- Change to your input file name
+master_file = 'master.xlsx'  # <-- Change to your input master filename
 
 # Output folder
 output_folder = 'output_excels'
@@ -77,9 +77,21 @@ for idx, row in sheets['General_Criteria'].iterrows():
                 ):
                     df_row = pd.DataFrame([row_data])
 
-                    # Rename Additional Input to Additional_Input in output
+                    # Handle special renaming for sheet names
                     output_sheet_name = 'Additional_Input' if sheet_name == 'Additional Input' else sheet_name
-                    
-                    df_row.to_excel(writer, sheet_name=output_sheet_name, index=False)
 
-print("✅ Done! All Excel files created correctly with final sheet names and structure.")
+                    if sheet_name == 'Account_Criteria':
+                        # Keep only specific columns for Account_Criteria
+                        account_output = pd.DataFrame([{
+                            'AC_Product': df_row.iloc[0]['AC_Product'],
+                            'Company Id': df_row.iloc[0]['CompanyId'],
+                            'Product': df_row.iloc[0]['SubProducts'],
+                            'Account Status': df_row.iloc[0]['AC_Status'],
+                            'MinBalance': df_row.iloc[0]['MinBalance'],
+                            'OpenDate': df_row.iloc[0]['OpenDate']
+                        }])
+                        account_output.to_excel(writer, sheet_name=output_sheet_name, index=False)
+                    else:
+                        df_row.to_excel(writer, sheet_name=output_sheet_name, index=False)
+
+print("✅✅ Done! All Excel files created perfectly according to the final specification.")
