@@ -1,11 +1,19 @@
 import pandas as pd
 import os
+import shutil
 from itertools import product
 
-# Load the master Excel file
-master_file = 'master.xlsx'  # <- change this to your master file path
+# Master Excel file path
+master_file = 'master.xlsx'  # <- Change if needed
 
-# Read all sheets into a dictionary
+# Output folder
+output_folder = 'output_excels'
+# Clean and create fresh output folder
+if os.path.exists(output_folder):
+    shutil.rmtree(output_folder)
+os.makedirs(output_folder, exist_ok=True)
+
+# Read all sheets into memory
 sheets = {
     'General_Criteria': pd.read_excel(master_file, sheet_name='General_Criteria'),
     'Customer_Criteria': pd.read_excel(master_file, sheet_name='Customer_Criteria'),
@@ -15,44 +23,57 @@ sheets = {
     'Pending_Reservation_Queue': pd.read_excel(master_file, sheet_name='Pending_Reservation_Queue')
 }
 
-# Output folder
-output_folder = 'output_excels'
-os.makedirs(output_folder, exist_ok=True)
-
-# Iterate over each row in General_Criteria
+# Process each row in General_Criteria
 for idx, row in sheets['General_Criteria'].iterrows():
     bs_value = row['bs']
 
-    # Collect matching rows from each sheet (except General_Criteria)
+    # Prepare matching rows from other sheets
     matches = {}
     for sheet_name in ['Customer_Criteria', 'Account_Criteria', 'Relationship_Criteria', 'Addition Input', 'Pending_Reservation_Queue']:
         df = sheets[sheet_name]
         matched_rows = df[df['SearchRecord'] == bs_value]
-        
+
         if matched_rows.empty:
-            # If no match found in any sheet, skip this bs_value
+            # If even one sheet has no match, skip this bs_value
             break
         matches[sheet_name] = matched_rows
-
-    else:  # Only if all sheets had matches
-        # Now we have a dictionary 'matches' with DataFrames of matching rows
-        
-        # Create all combinations (cartesian product) of rows across sheets
-        # This handles cases where multiple matches exist
+    else:
+        # All sheets have matches
+        # Prepare combinations
         list_of_rows = [matches[sheet].to_dict('records') for sheet in matches]
         combinations = list(product(*list_of_rows))
 
         for combo_idx, combo in enumerate(combinations, start=1):
-            # Create a new Excel writer
             output_path = os.path.join(output_folder, f"{bs_value}_{combo_idx}.xlsx")
+            
             with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
-                
-                # General_Criteria: only the current row
-                sheets['General_Criteria'].iloc[[idx]].to_excel(writer, sheet_name='General_Criteria', index=False)
+                # Prepare General_Criteria sheet
+                gen_row = row.copy()
 
-                # Other sheets: corresponding rows from the current combination
-                for sheet_name, row_data in zip(['Customer_Criteria', 'Account_Criteria', 'Relationship_Criteria', 'Addition Input', 'Pending_Reservation_Queue'], combo):
+                # Build the required output row
+                general_output = pd.DataFrame([{
+                    'bs': gen_row['bs'],
+                    'Environment': gen_row['Environment'],
+                    'Reserved Status': gen_row['ReservedStatus'],
+                    'Find Results By': gen_row['FindResultsBy'],
+                    'Search Structure By': gen_row['SearchStructureOnly'],
+                    'Search By Number of Customers/ Accounts Only': '',
+                    'Search_Criteria': f"SearchRecord: {gen_row['bs']} , SearchBy: {gen_row['SearchBy']}"
+                }])
+
+                # Write General_Criteria
+                general_output.to_excel(writer, sheet_name='General_Criteria', index=False)
+
+                # Write other sheets
+                for sheet_name, row_data in zip(
+                    ['Customer_Criteria', 'Account_Criteria', 'Relationship_Criteria', 'Addition Input', 'Pending_Reservation_Queue'], 
+                    combo
+                ):
                     df_row = pd.DataFrame([row_data])
-                    df_row.to_excel(writer, sheet_name=sheet_name, index=False)
+                    
+                    # Rename Addition Input to Additional_Input
+                    output_sheet_name = 'Additional_Input' if sheet_name == 'Addition Input' else sheet_name
+                    
+                    df_row.to_excel(writer, sheet_name=output_sheet_name, index=False)
 
-print("✅ Done! All test Excel files are created.")
+print("✅ Done! All Excel files created cleanly in the new folder.")
