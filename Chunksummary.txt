@@ -1,0 +1,29 @@
+You are analyzing a section of a large legacy monolithic Java codebase. This code chunk is part of a bigger system and will be combined later with other chunk summaries to create a comprehensive technical report for onboarding new developers.
+
+Please provide a structured and detailed summary under the following subheadings:
+
+1. Purpose of this Code Chunk
+	•	Describe the main function or responsibility of the code in this chunk.
+	•	Mention any business logic or domain-related tasks it handles.
+
+2. Important Classes and Their Roles
+	•	List the key classes/interfaces with a short explanation of what each one does.
+	•	Mention inheritance, interfaces implemented, or utility/helper roles.
+
+3. Notable Methods and Their Responsibilities
+	•	Highlight core methods and their purposes.
+	•	Mention parameters, return types, and side effects (like DB writes or external calls).
+
+4. Dependencies and Integrations
+	•	External libraries, frameworks, or modules this chunk depends on.
+	•	Calls to external systems/services (e.g., APIs, DBs, file systems).
+
+5. Design Patterns or Architectural Notes
+	•	Any observed design patterns (e.g., Singleton, Factory, MVC).
+	•	Structural or architectural choices made in this chunk.
+
+6. Observations & Recommendations
+	•	Code quality concerns, deprecated APIs, technical debt
+	•	Suggestions for refactoring or modularization
+
+Be concise but thorough. Use bullet points and technical language appropriate for a developer audience. Do not repeat boilerplate code explanations.
