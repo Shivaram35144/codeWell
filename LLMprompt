@@ -1,0 +1,77 @@
+You are a software documentation expert helping onboard new developers to a legacy monolithic Java codebase. Analyze the repository and generate a structured summary report with the following subheadings. Focus on clarity, conciseness, and completeness so that a new joiner can quickly understand the system. Use bullet points, code references, and diagrams (if supported) where appropriate.
+
+1. High-Level Overview
+	•	Purpose of the application
+	•	Core business logic and use cases
+	•	History or background context
+
+2. Architecture Summary
+	•	Monolith design pattern used
+	•	Core components/modules/packages
+	•	Layered structure (controller-service-repository)
+	•	External systems or services integrated
+
+3. Technology Stack
+	•	Java version and frameworks (Spring, Hibernate, etc.)
+	•	Build tools (Maven, Gradle)
+	•	Databases, messaging systems, caching
+
+4. Codebase Structure
+	•	Directory and package layout
+	•	Entry points and main classes
+	•	Notable conventions or design patterns
+
+5. Key Modules and Responsibilities
+	•	Summary of each major module
+	•	Responsibilities and inter-module interactions
+
+6. API Layer
+	•	List of controller classes and their endpoints
+	•	REST/SOAP API details with example requests/responses
+
+7. Service Layer
+	•	Key service classes and their business logic
+	•	Common service patterns or abstractions
+
+8. Data Access Layer
+	•	DAO/Repository classes and their methods
+	•	Entity classes and database table mappings
+	•	Custom SQL queries if any
+
+9. Configuration Management
+	•	Configuration files (application.properties, YAML, etc.)
+	•	Environment-based configurations
+	•	Secrets or credentials handling
+
+10. Error Handling & Logging
+	•	Exception handling strategy
+	•	Logging libraries and formats
+	•	Common log messages and troubleshooting steps
+
+11. Testing Strategy
+	•	Types of tests present (unit, integration)
+	•	Frameworks used (JUnit, Mockito)
+	•	Code coverage and test setup
+
+12. Build and Deployment
+	•	How the application is built
+	•	CI/CD steps if any
+	•	Deployment instructions (scripts, environments)
+
+13. Known Issues / Technical Debt
+	•	Problematic areas in the codebase
+	•	Deprecated libraries or APIs
+	•	Suggestions for refactoring
+
+14. Security Considerations
+	•	Authentication and authorization mechanisms
+	•	Input validation, encryption, rate-limiting
+
+15. Developer Guidelines
+	•	How to set up the project locally
+	•	Important scripts or utilities
+	•	Best practices, code style, dos and don’ts
+
+16. Future Recommendations
+	•	Areas for modernization or modularization
+	•	Suggested improvements in performance, architecture, testing
