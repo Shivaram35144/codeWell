@@ -1,0 +1,27 @@
+async validateEmailField(label: string): Promise<boolean> {
+  const input = this.page.locator(`
+    //input[
+      contains(translate(@placeholder, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${this.toXPathSafe(label)}') or
+      contains(translate(@aria-label, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${this.toXPathSafe(label)}') or
+      contains(translate(@name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${this.toXPathSafe(label)}') or
+      contains(translate(@id, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${this.toXPathSafe(label)}')
+    ] |
+    //label[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${this.toXPathSafe(label)}')]
+      /following::input[1]
+  `).first();
+
+  await input.waitFor({ state: 'visible' });
+  const value = await input.inputValue();
+
+  // Simple email regex (not overly strict)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isValid = emailRegex.test(value);
+
+  if (!isValid) {
+    console.warn(`❌ Invalid email: "${value}"`);
+  } else {
+    console.log(`✅ Valid email: "${value}"`);
+  }
+
+  return isValid;
+}
