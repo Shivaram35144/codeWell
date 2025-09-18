@@ -1,0 +1,35 @@
+Frontend (React + Tailwind)
+Pages / Tabs:
+Home / Upload
+Code Explanation
+Test Cases
+Test Data
+Documentation
+Metrics / Reports
+Input Methods:
+Text box (paste code/schema)
+File upload (single/multiple, base64 encoded)
+Actions / Buttons:
+Generate → calls backend endpoint
+Download → CSV, JSON, Markdown, or PDF
+Endpoints to call:
+/api/explain_code
+/api/generate_test_cases
+/api/generate_test_data
+/api/generate_documentation
+/api/generate_metrics
+Output: JSON rendered in cards, tables, charts, or downloadable files.
+
+
+Backend (Flask + tachyon API)
+Responsibilities:
+Receive JSON input (text/file)
+Construct tachyon prompt based on requested functionality
+Call tachyon API → get structured response
+Return JSON to frontend
+Endpoints & Response Formats:
+/api/explain_code → {"explanation": "...", "architecture": "..."}
+/api/generate_test_cases → {"test_cases": [...], "recommended_tool": "PyTest"}
+/api/generate_test_data → {"data_preview": [...], "full_data_csv": "<base64>", "coverage_info": "..."}
+/api/generate_documentation → {"documentation_md": "...", "mermaid_diagram": "..."}
+/api/generate_metrics → {"generation_time_seconds": 3.2, "test_case_count": 12, "data_row_count": 20, "data_quality_score": 0.95, "security_notes": "..."}
