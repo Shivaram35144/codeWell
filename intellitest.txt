@@ -1,3 +1,143 @@
+
+from flask import Flask, request, jsonify
+from Model.Model import Model
+import base64
+import time
+
+app = Flask(__name__)
+model = Model()
+
+# Helper function to decode base64 file content
+def decode_file(content):
+    try:
+        decoded_bytes = base64.b64decode(content)
+        return decoded_bytes.decode("utf-8")
+    except Exception as e:
+        return None
+
+# Endpoint 1: Explain Code
+@app.route("/api/explain_code", methods=["POST"])
+def explain_code():
+    data = request.get_json()
+    content = data.get("content", "")
+    if data.get("input_type") == "file":
+        content = decode_file(content)
+        if content is None:
+            return jsonify({"error": "Invalid file content"}), 400
+
+    system_message = [{"type":"text","text":"You are an AI assistant that explains code in plain English."}]
+    user_message = f"Explain the following code. Provide function/module description, purpose, and high-level architecture if applicable.\nCode:\n{content}"
+    message = [
+        {"role":"system","content":system_message},
+        {"role":"user","content":user_message}
+    ]
+
+    analysis = model.call_openai_api(message)
+    return jsonify({"explanation": analysis})
+
+# Endpoint 2: Generate Test Cases
+@app.route("/api/generate_test_cases", methods=["POST"])
+def generate_test_cases():
+    data = request.get_json()
+    content = data.get("content", "")
+    if data.get("input_type") == "file":
+        content = decode_file(content)
+        if content is None:
+            return jsonify({"error": "Invalid file content"}), 400
+
+    system_message = [{"type":"text","text":"You are an AI assistant that generates realistic unit test cases."}]
+    user_message = f"Generate realistic unit test cases for the following code. Include inputs, expected outputs, and recommended testing framework.\nCode:\n{content}"
+    message = [
+        {"role":"system","content":system_message},
+        {"role":"user","content":user_message}
+    ]
+
+    analysis = model.call_openai_api(message)
+    return jsonify({"test_cases": analysis})
+
+# Endpoint 3: Generate Test Data
+@app.route("/api/generate_test_data", methods=["POST"])
+def generate_test_data():
+    data = request.get_json()
+    content = data.get("content", "")
+    if data.get("input_type") == "file":
+        content = decode_file(content)
+        if content is None:
+            return jsonify({"error": "Invalid file content"}), 400
+
+    system_message = [{"type":"text","text":"You are an AI assistant that generates realistic test data following business rules."}]
+    user_message = f"Generate realistic test data for the following code/schema. Provide a preview of 10–20 rows in JSON, and full data as CSV in base64. Include coverage info.\nCode/Schema:\n{content}"
+    message = [
+        {"role":"system","content":system_message},
+        {"role":"user","content":user_message}
+    ]
+
+    analysis = model.call_openai_api(message)
+    return jsonify({"test_data": analysis})
+
+# Endpoint 4: Generate Documentation
+@app.route("/api/generate_documentation", methods=["POST"])
+def generate_documentation():
+    data = request.get_json()
+    content = data.get("content", "")
+    if data.get("input_type") == "file":
+        content = decode_file(content)
+        if content is None:
+            return jsonify({"error": "Invalid file content"}), 400
+
+    system_message = [{"type":"text","text":"You are an AI assistant that generates comprehensive documentation."}]
+    user_message = f"Generate documentation for this code/module, including system architecture, configuration, and usage guidelines.\nCode:\n{content}"
+    message = [
+        {"role":"system","content":system_message},
+        {"role":"user","content":user_message}
+    ]
+
+    analysis = model.call_openai_api(message)
+    return jsonify({"documentation": analysis})
+
+# Endpoint 5: Generate Metrics
+@app.route("/api/generate_metrics", methods=["POST"])
+def generate_metrics():
+    data = request.get_json()
+    content = data.get("content", "")
+    if data.get("input_type") == "file":
+        content = decode_file(content)
+        if content is None:
+            return jsonify({"error": "Invalid file content"}), 400
+
+    start_time = time.time()
+
+    # For simplicity, we generate basic metrics using Gemini
+    system_message = [{"type":"text","text":"You are an AI assistant that evaluates test generation metrics."}]
+    user_message = f"Generate metrics for the following code/test data. Include generation time, test case count, data row count, data quality score, and security/privacy notes.\nCode:\n{content}"
+    message = [
+        {"role":"system","content":system_message},
+        {"role":"user","content":user_message}
+    ]
+
+    analysis = model.call_openai_api(message)
+    end_time = time.time()
+
+    response = {
+        "generation_time_seconds": round(end_time - start_time, 2),
+        "metrics": analysis
+    }
+    return jsonify(response)
+
+# Run Flask app
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
+
+
+
+
+
+
+
+
+
+
+
 Frontend (React + Tailwind)
 Pages / Tabs:
 Home / Upload
