@@ -1,0 +1,16 @@
+public class KafkaConfig {
+
+    private static KafkaTemplate<String, String> kafkaTemplate;
+
+    public KafkaConfig(KafkaTemplate<String, String> template) {
+        kafkaTemplate = template;
+    }
+
+    public static ListenableFuture<?> publishMessage(String topic, String message) {
+        try {
+            return kafkaTemplate.send(new ProducerRecord<>(topic, message));
+        } catch (Exception ex) {
+            throw new RuntimeException("Error in sending message: " + ex.getMessage(), ex);
+        }
+    }
+}
